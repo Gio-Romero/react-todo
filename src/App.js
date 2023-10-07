@@ -8,12 +8,7 @@ function App() {
     <div>
       <h1>Todo List</h1>
       <AddTodoForm />
-
-      <ul>
         <TodoList />
-      </ul>
-
-      <label htmlFor='newItem'>submit next to do item:</label>
     </div>
   );
 }
