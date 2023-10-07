@@ -1,7 +1,7 @@
 import React from "react";
 
 
-let todoList = [{
+const todoList = [{
     id: 1,
     title: 'complete assignment'
 },
@@ -16,12 +16,11 @@ let todoList = [{
 
 function TodoList() {
     return (
-        <div>
+        <ul>
             {todoList.map((item) => {
-                // console.log(item)
                 return <li key={item.id}>{item.id} {item.title}</li>
             })}
-        </div>
+        </ul>
     )
 }
 export default TodoList
