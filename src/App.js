@@ -8,7 +8,6 @@ import AddTodoForm from './addTodoForm';
 function App() {
   const [newTodo,setNewTodo] = useState('')
 
-
   return (
     <div>
       <h1>Todo List</h1>
