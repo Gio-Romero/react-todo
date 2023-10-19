@@ -5,13 +5,11 @@ import TodoList from './TodoList';
 import AddTodoForm from './addTodoForm';
 
 
-
-
 function App() {
-  const [todoList, setTodoList] = useState([])
 
+  const [todoList, setTodoList] = useState([])
   function addTodo(newTodo){
-    setTodoList([...todoList,newTodo])
+    setTodoList(prevItems=>[...prevItems,newTodo])
   }
   return (
     <>
