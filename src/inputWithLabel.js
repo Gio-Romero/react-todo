@@ -1,15 +1,14 @@
 import { useEffect, useRef } from "react"
 
-function InputWithLabel(props) {
+function InputWithLabel({children,htmlFor,name,id,value,onChange}) {
     const inputRef = useRef()
     useEffect(() => {
         inputRef.current.focus()
     })
-
     return (
         <>
-            <label htmlFor={props.htmlFor}>{props.children}:</label>
-            <input name="title" id={props.id} value={props.value} onChange={props.onChange} ref={inputRef} />
+            <label htmlFor={htmlFor}>{children}:</label>
+            <input name={name} id={id} value={value} onChange={onChange} ref={inputRef} />
         </>
     )
 }

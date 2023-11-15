@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import InputWithLabel from "./inputWithLabel";
+import TodoList from "./TodoList";
 
 function AddTodoForm({ onAddTodo }) {
 
@@ -12,7 +13,9 @@ function AddTodoForm({ onAddTodo }) {
 
     function handleAddTodo(event) {
         event.preventDefault()
-        onAddTodo({ title: todoTitle, id: Date.now() })
+        // onAddTodo({ title: todoTitle, id: Date.now() })
+        const url = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
+        onAddTodo(url,{"Title":todoTitle})
         setTodoTitle("")
     }
 
