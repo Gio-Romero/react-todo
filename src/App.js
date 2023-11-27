@@ -11,15 +11,16 @@ function App() {
   const [todoList, setTodoList] = useState([])
   // let initialList = JSON.parse(localStorage.getItem('savedTodoList')) ?? []
   const [isloading, setIsLoading] = useState(true)
+  const API_URL = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
 
   const fetchData = async () => {
     const options = {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}` }
     }
-    const url = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
+    
     try {
-      const response = await fetch(url, options)
+      const response = await fetch(API_URL, options)
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -38,9 +39,8 @@ function App() {
   }
 
   const addTodo = async (data) => {
-    const url = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
     try {
-      const response = await fetch(url,
+      const response = await fetch(API_URL,
         {
           method: 'POST',
           headers: {
@@ -67,9 +67,8 @@ function App() {
   }
 
   const removeTodo = async (id) => {
-    const url = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
     try {
-      const response = await fetch(`${url}/${id}`, {
+      const response = await fetch(`${API_URL}/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
@@ -79,7 +78,7 @@ function App() {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      setTodoList(todoList.filter(item => item.id != id))
+      setTodoList(prevTodoList => prevTodoList.filter(item => item.id !== id))
     } catch (error) {
       console.error('Error deleting todo:', error.message);
 
@@ -117,10 +116,8 @@ function Home() {
   }
   
   function NewRoute() {
-    return(
-      <>
+    return(  
       <h1>New Todo List</h1>
-      </>
     )
   }
 }
