@@ -1,24 +1,26 @@
 
+
 import { useEffect, useState } from 'react';
 import './App.css';
 import TodoList from './TodoList';
 import AddTodoForm from './addTodoForm';
-
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 function App() {
 
   const [todoList, setTodoList] = useState([])
   // let initialList = JSON.parse(localStorage.getItem('savedTodoList')) ?? []
   const [isloading, setIsLoading] = useState(true)
+  const API_URL = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
 
   const fetchData = async () => {
     const options = {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}` }
     }
-    const url = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
+    
     try {
-      const response = await fetch(url, options)
+      const response = await fetch(API_URL, options)
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -26,9 +28,9 @@ function App() {
       const data = await response.json();
       const todos = data.records.map((todo) => {
         return { title: todo.fields.Title, id: todo.id, createdAt: todo.createdTime }
-      })
-      const newTodos = todos.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-      setTodoList(newTodos)
+      }).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+
+      setTodoList(todos)
       setIsLoading(false)
 
     } catch (error) {
@@ -36,9 +38,9 @@ function App() {
     }
   }
 
-  const addTodo = async (url, data) => {
+  const addTodo = async (data) => {
     try {
-      const response = await fetch(url,
+      const response = await fetch(API_URL,
         {
           method: 'POST',
           headers: {
@@ -65,9 +67,8 @@ function App() {
   }
 
   const removeTodo = async (id) => {
-    const url = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
     try {
-      const response = await fetch(`${url}/${id}`, {
+      const response = await fetch(`${API_URL}/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
@@ -76,10 +77,8 @@ function App() {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      const newList = todoList.filter(item =>
-        item.id !== id
-      )
-      setTodoList(newList)
+
+      setTodoList(prevTodoList => prevTodoList.filter(item => item.id !== id))
     } catch (error) {
       console.error('Error deleting todo:', error.message);
 
@@ -91,21 +90,36 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (todoList.length > 0) {
+    if (todoList.length) {
       localStorage.setItem('savedTodoList', JSON.stringify(todoList))
     }
   }, [todoList])
 
-
   return (
-    <>
-      <h1>Todo List</h1>
-      <AddTodoForm onAddTodo={addTodo} />
-      {isloading ? <p>Loading...</p> :
-        <TodoList todoList={todoList} onRemoveTodo={removeTodo} />}
-    </>
-  );
-}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={< Home />} />
+        <Route path="/new" element={< NewRoute />} />
+      </Routes>
+    </BrowserRouter>
+  )
 
+function Home() {
+    return (
+      <>
+        <h1>Todo List</h1>
+        <AddTodoForm onAddTodo={addTodo} />
+        {isloading ? <p>Loading...</p> :
+          <TodoList todoList={todoList} onRemoveTodo={removeTodo} />}
+      </>
+    )
+  }
+  
+  function NewRoute() {
+    return(  
+      <h1>New Todo List</h1>
+    )
+  }
+}
 export default App;
 
