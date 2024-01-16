@@ -152,7 +152,7 @@ function App() {
         <h1 className={style.Title}>To-do List</h1>
         <AddTodoForm onAddTodo={addTodo} />
         {isloading ? <p>Loading...</p> :
-          <TodoList todoList={todoList} onRemoveTodo={removeTodo} checkBox={checkBox}/>}
+          <TodoList todoList={todoList} onRemoveTodo={removeTodo} updateTodo={updateTodo}/>}
       </>
     )
   }
