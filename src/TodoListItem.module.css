@@ -1,0 +1,99 @@
+.Title {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-family: Rubik Burned;
+    font-size: 4em;
+    color: aliceblue;
+    margin: 10px;
+}
+
+.ListItem {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 10px;
+    background-color: white;
+    padding: 18px;
+    width: 30em;
+    box-shadow: 7px 7px 22px -8px black;
+    border-radius: 5px;
+    color: #102121;
+}
+
+.centeredList {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-weight: 600;
+    margin: 30px;
+}
+
+.inputStyle {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+}
+
+.addBtn {
+    background-color: #2a6da2;
+    color: floralwhite;
+    margin-left: 15px;
+    border-radius: 5px;
+    font-family: emoji;
+    padding: 4px 10px 4px 10px;
+    font-weight: 600;
+}
+
+.addBtn:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+    background-color: #7694b0;
+}
+
+.input {
+    width: 20em;
+    border: solid 2px #386d84;
+    border-radius: 6px;
+    box-shadow: 5px 4px 10px #7c6e6e;
+    height: 35px;
+}
+.fade-out {
+    transition: opacity 1s ease-in-out;
+}
+.lineThrough{
+    text-decoration: line-through;
+}
+@media screen and (max-width:480px) {
+    .ListItem {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin: 10px;
+        background-color: ghostwhite;
+        padding: 18px;
+        width: 17em;
+        box-shadow: 7px 7px 22px -8px black;
+    }
+
+    .inputStyle {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .addBtn:hover {
+        transform: scale(1.1);
+    }
+    .Title{
+        font-size: 3em;
+    }
+}

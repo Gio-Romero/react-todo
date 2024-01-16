@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react"
+import style from "./TodoListItem.module.css"
 
 function InputWithLabel({children,name,id,value,onChange}) {
     const inputRef = useRef()
@@ -8,7 +9,7 @@ function InputWithLabel({children,name,id,value,onChange}) {
     return (
         <>
             <label htmlFor={id}>{children}:</label>
-            <input name={name} id={id} value={value} onChange={onChange} ref={inputRef} />
+            <input className={style.input} name={name} id={id} value={value} onChange={onChange} ref={inputRef} />
         </>
     )
 }

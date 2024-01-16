@@ -5,6 +5,7 @@ import './App.css';
 import TodoList from './TodoList';
 import AddTodoForm from './addTodoForm';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import style from "./TodoListItem.module.css"
 
 function App() {
 
@@ -13,76 +14,117 @@ function App() {
   const [isloading, setIsLoading] = useState(true)
   const API_URL = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
 
-  const fetchData = async () => {
+
+  const fetchApi = async (method, url, headers, body,id) => {
     const options = {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}` }
+      method: method,
+      headers: {
+        ...headers,
+        Authorization: `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
+      },
+      body: body ? JSON.stringify(body) : null,
+    };
+    const apiUrl = id ? `${url}/${id}` : url
+
+    const response = await fetch(apiUrl, options);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`)
     }
-    
+    const data = await response.json();
+    return data
+  }
+
+  const fetchData = async () => {
     try {
-      const response = await fetch(API_URL, options)
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await fetchApi(
+        'GET',
+        API_URL,
+        { 'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}` }
+      )
       const todos = data.records.map((todo) => {
-        return { title: todo.fields.Title, id: todo.id, createdAt: todo.createdTime }
+        return { title: todo.fields.Title, id: todo.id, createdAt: todo.createdTime, done:todo.fields.Done }
       }).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-
       setTodoList(todos)
       setIsLoading(false)
-
     } catch (error) {
       console.log(error.message)
     }
   }
 
-  const addTodo = async (data) => {
+  const addTodo = async (newData) => {
     try {
-      const response = await fetch(API_URL,
+      const data = await fetchApi(
+        'POST',
+        API_URL,
         {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ records: [{ fields: data }] })
-        });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const newData = await response.json();
-      const listItem = newData.records[0]
+          'Content-Type': 'application/json'
+        },
+        { records: [{ fields: newData }] }
+      )
+      const listItem = data.records[0]
       setTodoList(prevItems => [...prevItems, {
         title: listItem.fields.Title,
+        done: listItem.fields.Done,
         id: listItem.id,
-
       }])
     } catch (error) {
       console.error('Error updating todo:', error.message);
       return null
     }
   }
-
-  const removeTodo = async (id) => {
-    try {
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+  const fadeOutElement = async (element) => {
+    element.classList.add("fade-out")
+    let opacity = 1;
+    const fadeOutInterval = setInterval(function () {
+      if (opacity > 0) {
+        opacity -= 0.1;
+        element.style.opacity = opacity;
+      } else {
+        clearInterval(fadeOutInterval);
       }
+    }, 30);
+  }
 
+  const removeTodo = async (id, e) => {
+    const fadeOut = await fadeOutElement(e.target.closest('li'))
+    try {
+      const data = await fetchApi(
+        'DELETE',
+        `${API_URL}/${id}`,
+        { 'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}` }
+      )
       setTodoList(prevTodoList => prevTodoList.filter(item => item.id !== id))
     } catch (error) {
       console.error('Error deleting todo:', error.message);
-
     }
+  }
+
+  const updateTodo = async (id, updatedCheckboxValue)=>{
+    try {
+      const data = await fetchApi(
+        'PATCH',
+        `${API_URL}/${id}`,
+        {
+          'Content-Type': 'application/json'
+        },
+        {fields: {
+            Done: updatedCheckboxValue,
+          },}
+      )
+      setTodoList((prevTodoList) =>
+       prevTodoList.map((item)=> item.id === data.id ? {
+        title: data.fields.Title,
+        done: data.fields.Done,
+        id: data.id,
+      } : item))
+    } catch (error) {
+      console.error('Error updating todo:', error.message);
+      return null
+    }
+  }
+
+  const checkBox = (id,updatedCheckboxValue) => {
+    updateTodo(id,updatedCheckboxValue)
   }
 
   useEffect(() => {
@@ -104,19 +146,19 @@ function App() {
     </BrowserRouter>
   )
 
-function Home() {
+  function Home() {
     return (
       <>
-        <h1>Todo List</h1>
+        <h1 className={style.Title}>To-do List</h1>
         <AddTodoForm onAddTodo={addTodo} />
         {isloading ? <p>Loading...</p> :
-          <TodoList todoList={todoList} onRemoveTodo={removeTodo} />}
+          <TodoList todoList={todoList} onRemoveTodo={removeTodo} checkBox={checkBox}/>}
       </>
     )
   }
-  
+
   function NewRoute() {
-    return(  
+    return (
       <h1>New Todo List</h1>
     )
   }
