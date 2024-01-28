@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import './App.css';
-import TodoList from './TodoList';
-import AddTodoForm from './addTodoForm';
+import TodoList from './components/TodoList';
+import AddTodoForm from './components/addTodoForm';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import style from "./TodoListItem.module.css"
 
@@ -15,7 +15,7 @@ function App() {
   const API_URL = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`
 
 
-  const fetchApi = async (method, url, headers, body,id) => {
+  const fetchApi = async (method, url, headers, body, id) => {
     const options = {
       method: method,
       headers: {
@@ -42,7 +42,7 @@ function App() {
         { 'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}` }
       )
       const todos = data.records.map((todo) => {
-        return { title: todo.fields.Title, id: todo.id, createdAt: todo.createdTime, done:todo.fields.Done }
+        return { title: todo.fields.Title, id: todo.id, createdAt: todo.createdTime, done: todo.fields.Done }
       }).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
       setTodoList(todos)
       setIsLoading(false)
@@ -62,10 +62,12 @@ function App() {
         { records: [{ fields: newData }] }
       )
       const listItem = data.records[0]
+
       setTodoList(prevItems => [...prevItems, {
         title: listItem.fields.Title,
         done: listItem.fields.Done,
         id: listItem.id,
+        createdAt: listItem.fields.CreatedAt
       }])
     } catch (error) {
       console.error('Error updating todo:', error.message);
@@ -86,9 +88,9 @@ function App() {
   }
 
   const removeTodo = async (id, e) => {
-    const fadeOut = await fadeOutElement(e.target.closest('li'))
+    await fadeOutElement(e.target.closest('li'))
     try {
-      const data = await fetchApi(
+      await fetchApi(
         'DELETE',
         `${API_URL}/${id}`,
         { 'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}` }
@@ -99,7 +101,7 @@ function App() {
     }
   }
 
-  const updateTodo = async (id, updatedCheckboxValue)=>{
+  const updateTodo = async (id, updatedCheckboxValue) => {
     try {
       const data = await fetchApi(
         'PATCH',
@@ -107,24 +109,23 @@ function App() {
         {
           'Content-Type': 'application/json'
         },
-        {fields: {
+        {
+          fields: {
             Done: updatedCheckboxValue,
-          },}
+          },
+        }
       )
       setTodoList((prevTodoList) =>
-       prevTodoList.map((item)=> item.id === data.id ? {
-        title: data.fields.Title,
-        done: data.fields.Done,
-        id: data.id,
-      } : item))
+        prevTodoList.map((item) => item.id === data.id ? {
+          title: data.fields.Title,
+          done: data.fields.Done,
+          id: data.id,
+          createdAt: data.createdTime
+        } : item))
     } catch (error) {
       console.error('Error updating todo:', error.message);
       return null
     }
-  }
-
-  const checkBox = (id,updatedCheckboxValue) => {
-    updateTodo(id,updatedCheckboxValue)
   }
 
   useEffect(() => {
@@ -152,7 +153,7 @@ function App() {
         <h1 className={style.Title}>To-do List</h1>
         <AddTodoForm onAddTodo={addTodo} />
         {isloading ? <p>Loading...</p> :
-          <TodoList todoList={todoList} onRemoveTodo={removeTodo} updateTodo={updateTodo}/>}
+          <TodoList todoList={todoList} onRemoveTodo={removeTodo} updateTodo={updateTodo} />}
       </>
     )
   }
