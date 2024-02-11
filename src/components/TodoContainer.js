@@ -16,21 +16,17 @@ function TodoContainer({ tableName }) {
     const API_URL = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${tableName}`
 
 
-    const sortOrder = (event) => {
-        const selectedOption = event.target.value
-        let newList
-        if (selectedOption === "A-Z") {
-            newList = todoList.sort((a, b) => a.title.localeCompare(b.title))
-            setToggleOrder('A-Z')
-          } else if (selectedOption === "Z-A") {
-            newList = todoList.sort((a, b) => b.title.localeCompare(a.title))
-            setToggleOrder('Z-A')
-          } else if (selectedOption === "Date") {
-            newList = todoList.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-            setToggleOrder('Date')
-          }
-          setTodoList(newList)
-    }
+    const sortOrder = (event) => setToggleOrder(event.target.value)
+
+        useEffect(()=>{
+            if (toggleOrder === "A-Z" || toggleOrder === "Z-A") {
+                const sortedList = [...todoList].sort((a, b) => toggleOrder === "A-Z" ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
+                setTodoList(sortedList);
+            }else{
+                const sortedList = [...todoList].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                setTodoList(sortedList);
+            }
+        },[toggleOrder])
 
     const fetchApi = async (method, url, headers, body, id) => {
         const options = {
@@ -57,9 +53,7 @@ function TodoContainer({ tableName }) {
                 const data = await fetchApi(
                     'GET',
                     API_URL,
-                    { 'Authorization': `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}` }
                 )
-
                 const sortedData = data.records.map((todo) => {
                     return { title: todo.fields.Title, id: todo.id, createdAt: todo.createdTime, done: todo.fields.Done }
                 }).sort((a, b) => a.title.localeCompare(b.title))
@@ -93,11 +87,10 @@ function TodoContainer({ tableName }) {
             }])
         } catch (error) {
             console.error('Error updating todo:', error.message);
-            return null
         }
     }
 
-    const fadeOutElement = async (element) => {
+    const fadeOutElement = (element) => {
         element.classList.add("fade-out")
         let opacity = 1;
         const fadeOutInterval = setInterval(function () {
@@ -111,7 +104,7 @@ function TodoContainer({ tableName }) {
     }
 
     const removeTodo = async (id, e) => {
-        await fadeOutElement(e.target.closest('li'))
+     fadeOutElement(e.target.closest('li'))
         try {
             await fetchApi(
                 'DELETE',
@@ -148,7 +141,6 @@ function TodoContainer({ tableName }) {
                 } : item))
         } catch (error) {
             console.error('Error updating todo:', error.message);
-            return null
         }
     }
 
@@ -168,7 +160,5 @@ function TodoContainer({ tableName }) {
         </>
     )
 }
-
-
 
 export default TodoContainer
