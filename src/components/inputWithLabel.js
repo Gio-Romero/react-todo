@@ -11,6 +11,7 @@ function InputWithLabel({ children, name, id, value, onChange }) {
         <>
             <label htmlFor={id}>{children}:</label>
             <input className={style.input} name={name} id={id} value={value} onChange={onChange} ref={inputRef} />
+            
         </>
     )
 }

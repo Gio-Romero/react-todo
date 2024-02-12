@@ -1,5 +1,5 @@
 import React from "react";
-import TodoListItem from "./todoListItem";
+import TodoListItem from "./TodoListItem";
 import style from "../TodoListItem.module.css"
 import PropTypes from "prop-types";
 
